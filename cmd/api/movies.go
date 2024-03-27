@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	"fmt"
+	"time"
+
+	"github.com/effiong-jr/greenlight/internal/data"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -14,13 +17,22 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *application) getMovieHandler(w http.ResponseWriter, r *http.Request) {
 
-	id, err := app.readIDParam(r)
-
-	if err != nil {
-		http.NotFound(w, r)
-		return
+	movie := data.Movie{
+		ID:        1,
+		Title:     "Inception",
+		Year:      2010,
+		Runtime:   148,
+		Genres:    []string{"Sci-fi", "Action"},
+		CreatedAt: time.Now(),
+		Version:   1,
 	}
 
-	fmt.Fprintf(w, "show the details of movie %d\n", id)
+	err := app.writeJSON(w, http.StatusOK, movie, nil)
+
+	if err != nil {
+		app.logger.Print(err)
+		http.Error(w, "The server encountered and error and could not process your request", http.StatusInternalServerError)
+		return
+	}
 
 }
